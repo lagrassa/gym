@@ -143,7 +143,7 @@ class FetchEnv(robot_env.RobotEnv):
         if self.has_object:
             object_xpos = self.initial_gripper_xpos[:2]
             while np.linalg.norm(object_xpos - self.initial_gripper_xpos[:2]) < 0.1:
-                object_xpos = self.initial_gripper_xpos[:2] + np.array([-0.1,0.1]) #self.np_random.uniform(-self.obj_range, self.obj_range, size=2)
+                object_xpos = self.initial_gripper_xpos[:2] + np.array([-0.05,0.115])+self.np_random.uniform(-0.005, 0.005, size=2)
             object_qpos = self.sim.data.get_joint_qpos('object0:joint')
             assert object_qpos.shape == (7,)
             object_qpos[:2] = object_xpos
@@ -153,14 +153,15 @@ class FetchEnv(robot_env.RobotEnv):
         return True
 
     def _sample_goal(self):
+        goal_offset = np.array([0.05, 0.12,0])
         if self.has_object:
-            goal = self.initial_gripper_xpos[:3] + np.array([-0.05,-0.12,0])
+            goal = self.initial_gripper_xpos[:3] + goal_offset
             goal += self.target_offset
             goal[2] = self.height_offset
             if self.target_in_the_air and self.np_random.uniform() < 0.5:
                 goal[2] += self.np_random.uniform(0, 0.45)
         else:
-            goal = self.initial_gripper_xpos[:3] + self.np_random.uniform(-0.15, 0.15, size=3)
+            goal = self.initial_gripper_xpos[:3] + goal_offset
         return goal.copy()
 
     def _is_success(self, achieved_goal, desired_goal):
