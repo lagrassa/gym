@@ -11,9 +11,9 @@ import sys, gym, time
 
 env = gym.make('LunarLander-v2' if len(sys.argv)<2 else sys.argv[1])
 
-if not hasattr(env.action_space, 'n'):
-    raise Exception('Keyboard agent only supports discrete action spaces')
-ACTIONS = env.action_space.n
+#if not hasattr(env.action_space, 'n'):
+#    raise Exception('Keyboard agent only supports discrete action spaces')
+ACTIONS = 4
 SKIP_CONTROL = 0    # Use previous control decision SKIP_CONTROL times, that's how you
                     # can test what skip is still usable.
 
