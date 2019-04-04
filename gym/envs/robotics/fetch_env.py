@@ -105,20 +105,22 @@ class FetchEnv(robot_env.RobotEnv):
         gripper_state = robot_qpos[-2:]
         gripper_vel = robot_qvel[-2:] * dt  # change to a scalar if the gripper is made symmetric
 
-        if not self.has_object:
-            achieved_goal = grip_pos.copy()
-        else:
-            achieved_goal = np.squeeze(object_pos.copy())
-        obs = np.concatenate([
-            grip_pos, object_pos.ravel(), object_rel_pos.ravel(), gripper_state, object_rot.ravel(),
-            object_velp.ravel(), object_velr.ravel(), grip_velp, gripper_vel,
-        ])
-
+        #if not self.has_object:
+        #    achieved_goal = grip_pos.copy()
+        #else:
+        #    achieved_goal = np.squeeze(object_pos.copy())
+        #obs = np.concatenate([
+        #    grip_pos, object_pos.ravel(), object_rel_pos.ravel(), gripper_state, object_rot.ravel(),
+        #    object_velp.ravel(), object_velr.ravel(), grip_velp, gripper_vel,
+        #])
+        """
         return {
             'observation': obs.copy(),
             'achieved_goal': achieved_goal.copy(),
             'desired_goal': self.goal.copy(),
         }
+        """
+        return obs.copy()
 
     def _viewer_setup(self):
         body_id = self.sim.model.body_name2id('robot0:gripper_link')
@@ -143,7 +145,7 @@ class FetchEnv(robot_env.RobotEnv):
         if self.has_object:
             object_xpos = self.initial_gripper_xpos[:2]
             while np.linalg.norm(object_xpos - self.initial_gripper_xpos[:2]) < 0.1:
-                object_xpos = self.initial_gripper_xpos[:2] + np.array([-0.05,0.115])+self.np_random.uniform(-0.005, 0.005, size=2)
+                object_xpos = self.initial_gripper_xpos[:2] + np.array([0.1,0.00])+self.np_random.uniform(-0.005, 0.005, size=2)
             object_qpos = self.sim.data.get_joint_qpos('object0:joint')
             assert object_qpos.shape == (7,)
             object_qpos[:2] = object_xpos
@@ -153,7 +155,7 @@ class FetchEnv(robot_env.RobotEnv):
         return True
 
     def _sample_goal(self):
-        goal_offset = np.array([0.05, 0.12,0])
+        goal_offset = np.array([0.17, 0.005,0])
         if self.has_object:
             goal = self.initial_gripper_xpos[:3] + goal_offset
             goal += self.target_offset
