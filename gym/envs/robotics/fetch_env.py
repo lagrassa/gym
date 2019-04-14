@@ -53,6 +53,7 @@ class FetchEnv(robot_env.RobotEnv):
     def compute_reward(self, achieved_goal, goal, info):
         # Compute distance between goal and the achieved goal.
         d = goal_distance(achieved_goal, goal)
+        self.distance_threshold = 0.3
         if self.reward_type == 'sparse':
             return -(d > self.distance_threshold).astype(np.float32)
         else:
@@ -105,21 +106,19 @@ class FetchEnv(robot_env.RobotEnv):
         gripper_state = robot_qpos[-2:]
         gripper_vel = robot_qvel[-2:] * dt  # change to a scalar if the gripper is made symmetric
 
-        #if not self.has_object:
-        #    achieved_goal = grip_pos.copy()
-        #else:
-        #    achieved_goal = np.squeeze(object_pos.copy())
-        #obs = np.concatenate([
-        #    grip_pos, object_pos.ravel(), object_rel_pos.ravel(), gripper_state, object_rot.ravel(),
-        #    object_velp.ravel(), object_velr.ravel(), grip_velp, gripper_vel,
-        #])
-        """
+        if not self.has_object:
+            achieved_goal = grip_pos.copy()
+        else:
+            achieved_goal = np.squeeze(object_pos.copy())
+        obs = np.concatenate([
+            grip_pos, object_pos.ravel(), object_rel_pos.ravel(), gripper_state, object_rot.ravel(),
+            object_velp.ravel(), object_velr.ravel(), grip_velp, gripper_vel,
+        ])
         return {
             'observation': obs.copy(),
             'achieved_goal': achieved_goal.copy(),
             'desired_goal': self.goal.copy(),
         }
-        """
         return obs.copy()
 
     def _viewer_setup(self):
