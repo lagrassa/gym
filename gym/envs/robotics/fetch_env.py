@@ -37,10 +37,14 @@ class FetchEnv(robot_env.RobotEnv):
         self.block_gripper = block_gripper
         self.has_object = has_object
         self.target_in_the_air = target_in_the_air
+        self.target_in_the_air=False
+        self.target_range = 0.1
+        self.obj_range = 0.005
         self.target_offset = target_offset
         self.obj_range = obj_range
         self.target_range = target_range
         self.distance_threshold = distance_threshold
+        self.distance_threshold=0.1
         self.reward_type = reward_type
 
         super(FetchEnv, self).__init__(
@@ -52,11 +56,12 @@ class FetchEnv(robot_env.RobotEnv):
 
     def compute_reward(self, achieved_goal, goal, info):
         # Compute distance between goal and the achieved goal.
+        self.distance_threshold=0.1
         d = goal_distance(achieved_goal, goal)
-        self.distance_threshold = 0.3
         if self.reward_type == 'sparse':
             return -(d > self.distance_threshold).astype(np.float32)
         else:
+            assert(False)
             return -d
 
     # RobotEnv methods
@@ -156,13 +161,13 @@ class FetchEnv(robot_env.RobotEnv):
     def _sample_goal(self):
         goal_offset = np.array([0.17, 0.005,0])
         if self.has_object:
-            goal = self.initial_gripper_xpos[:3] + self.np_random.uniform(-self.target_range, self.target_range, size=3)
+            goal = self.initial_gripper_xpos[:3] + goal_offset #self.np_random.uniform(-self.target_range, self.target_range, size=3)
             goal += self.target_offset
             goal[2] = self.height_offset
-            if self.target_in_the_air and self.np_random.uniform() < 0.5:
-                goal[2] += self.np_random.uniform(0, 0.45)
+            #if self.target_in_the_air and self.np_random.uniform() < 0.5:
+            #    goal[2] += self.np_random.uniform(0, 0.45)
         else:
-            goal = self.initial_gripper_xpos[:3] + self.np_random.uniform(-0.08, 0.08, size=3)
+            goal = self.initial_gripper_xpos[:3] + goal_offset #self.np_random.uniform(-0.08, 0.08, size=3)
         return goal.copy()
 
     def _is_success(self, achieved_goal, desired_goal):
